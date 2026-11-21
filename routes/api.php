@@ -3,10 +3,12 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BadgeController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\CollectionController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\ReadingGoalController;
 use App\Http\Controllers\Api\ReadingSessionController;
+use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\UserBookController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +17,7 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::get('/books', [BookController::class, 'index']);
+Route::get('/books/isbn/{isbn}', [BookController::class, 'lookupIsbn']);
 Route::get('/books/{id}', [BookController::class, 'show']);
 
 // Authenticated Routes
@@ -22,12 +25,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth & Profile
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    // Dashboard
+    // Dashboard & Stats
     Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/stats', [StatsController::class, 'index']);
 
-    // Master Books (Manual Creation)
+    // Master Books (Manual Creation & Cover Upload)
     Route::post('/books', [BookController::class, 'store']);
 
     // User Books (Rak Buku)
@@ -36,6 +41,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user-books/{id}', [UserBookController::class, 'show']);
     Route::put('/user-books/{id}', [UserBookController::class, 'update']);
     Route::delete('/user-books/{id}', [UserBookController::class, 'destroy']);
+
+    // Collections (Rak Kustom)
+    Route::get('/collections', [CollectionController::class, 'index']);
+    Route::post('/collections', [CollectionController::class, 'store']);
+    Route::get('/collections/{id}', [CollectionController::class, 'show']);
+    Route::put('/collections/{id}', [CollectionController::class, 'update']);
+    Route::delete('/collections/{id}', [CollectionController::class, 'destroy']);
+    Route::post('/collections/{id}/items', [CollectionController::class, 'addItem']);
+    Route::delete('/collections/{id}/items/{userBookId}', [CollectionController::class, 'removeItem']);
 
     // Reading Sessions (Timer & Log)
     Route::get('/sessions', [ReadingSessionController::class, 'index']);

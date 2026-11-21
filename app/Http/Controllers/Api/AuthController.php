@@ -9,6 +9,7 @@ use App\Models\UserStreak;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -113,8 +114,15 @@ class AuthController extends Controller
             'timezone' => 'nullable|string|max:50',
             'reminder_time' => 'nullable|string|max:10',
             'avatar_url' => 'nullable|string',
+            'avatar_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
+        if ($request->hasFile('avatar_image')) {
+            $path = $request->file('avatar_image')->store('avatars', 'public');
+            $validated['avatar_url'] = url(Storage::url($path));
+        }
+
+        unset($validated['avatar_image']);
         $user->update(array_filter($validated, fn($val) => !is_null($val)));
 
         return response()->json([

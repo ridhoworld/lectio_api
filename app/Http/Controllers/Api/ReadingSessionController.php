@@ -35,13 +35,14 @@ class ReadingSessionController extends Controller
         $user = $request->user();
         $timezone = $user->timezone ?: 'Asia/Jakarta';
         $today = Carbon::now($timezone)->toDateString();
+        $minDate = Carbon::now($timezone)->subDays(7)->toDateString();
 
         $validated = $request->validate([
             'user_book_id' => 'required|uuid|exists:user_books,id',
             'start_page' => 'required|integer|min:0',
             'end_page' => 'required|integer|gte:start_page',
             'duration_minutes' => 'required|integer|min:1',
-            'session_date' => 'nullable|date',
+            'session_date' => "nullable|date|after_or_equal:{$minDate}|before_or_equal:{$today}",
         ]);
 
         $sessionDate = $validated['session_date'] ?? $today;
