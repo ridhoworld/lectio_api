@@ -32,8 +32,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/stats', [StatsController::class, 'index']);
 
-    // Master Books (Manual Creation & Cover Upload)
+    // Master Books (Manual Creation & Update/Cover Upload)
     Route::post('/books', [BookController::class, 'store']);
+    Route::post('/books/{id}', [BookController::class, 'update']);
+    Route::put('/books/{id}', [BookController::class, 'update']);
 
     // User Books (Rak Buku)
     Route::get('/user-books', [UserBookController::class, 'index']);

@@ -67,6 +67,36 @@ class BookController extends Controller
         ], 201);
     }
 
+    public function update(Request $request, string $id)
+    {
+        $book = Book::findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'author' => 'sometimes|required|string|max:255',
+            'isbn' => 'nullable|string|max:20|unique:books,isbn,' . $book->id,
+            'publisher' => 'nullable|string|max:150',
+            'total_pages' => 'nullable|integer|min:1',
+            'genre' => 'nullable|string|max:100',
+            'cover_url' => 'nullable|string',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'synopsis' => 'nullable|string',
+        ]);
+
+        if ($request->hasFile('cover_image')) {
+            $path = $request->file('cover_image')->store('covers', 'public');
+            $validated['cover_url'] = url(Storage::url($path));
+        }
+
+        unset($validated['cover_image']);
+        $book->update($validated);
+
+        return response()->json([
+            'message' => 'Data buku berhasil diperbarui',
+            'book' => $book->fresh(),
+        ]);
+    }
+
     /**
      * Lookup book metadata by ISBN from local DB, Google Books, or Open Library.
      */
